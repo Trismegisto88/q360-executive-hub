@@ -1,0 +1,804 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Q360 · Mesa de Control SND · Marzo 2026</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;600&family=Lato:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purplish: #4814DA;
+    --liberty: #11152F;
+    --smoke: #F5F5F5;
+    --lemonade: #5FDAF4;
+    --fuchsia: #D946EF;
+    --rose: #F43F5E;
+    --indigo: #6366F1;
+    --success: #22C55E;
+    --error: #EF4444;
+    --warning: #F59E0B;
+    --info: #475569;
+    --graphite: #374151;
+    --steel: #6B7280;
+    --chrome: #D1D5DB;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--liberty);
+    color: #E2E8F0;
+    min-height: 100vh;
+  }
+  .container { max-width: 1200px; margin: 0 auto; padding: 24px 16px; }
+
+  /* HEADER */
+  .header {
+    text-align: center;
+    padding: 40px 20px 32px;
+    background: linear-gradient(135deg, var(--liberty) 0%, #1a1f3d 50%, #0f1225 100%);
+    border-bottom: 2px solid rgba(72,20,218,0.3);
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -50%; left: -50%; width: 200%; height: 200%;
+    background: radial-gradient(ellipse at 30% 50%, rgba(72,20,218,0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 70% 50%, rgba(95,218,244,0.05) 0%, transparent 50%);
+    animation: pulse 8s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 0.5; } 50% { opacity: 1; }
+  }
+  .header h1 {
+    font-family: 'DM Sans', sans-serif;
+    font-size: clamp(24px, 4vw, 36px);
+    font-weight: 700;
+    color: #fff;
+    position: relative;
+    letter-spacing: -0.5px;
+  }
+  .header h1 span { color: var(--lemonade); }
+  .header .subtitle {
+    font-size: 13px;
+    color: var(--steel);
+    margin-top: 8px;
+    position: relative;
+    font-family: 'Lato', sans-serif;
+  }
+  .header .badge {
+    display: inline-block;
+    background: rgba(72,20,218,0.2);
+    border: 1px solid rgba(72,20,218,0.4);
+    color: var(--lemonade);
+    font-size: 11px;
+    padding: 4px 12px;
+    border-radius: 20px;
+    margin-top: 12px;
+    position: relative;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  /* HERO METRICS */
+  .metrics-bar {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    padding: 24px 0;
+  }
+  .metric-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    padding: 16px;
+    text-align: center;
+    transition: all 0.3s;
+  }
+  .metric-card:hover {
+    background: rgba(72,20,218,0.1);
+    border-color: rgba(72,20,218,0.3);
+    transform: translateY(-2px);
+  }
+  .metric-value {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 28px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .metric-value.accent { color: var(--lemonade); }
+  .metric-value.warning { color: var(--warning); }
+  .metric-value.success { color: var(--success); }
+  .metric-label {
+    font-size: 11px;
+    color: var(--steel);
+    margin-top: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* SECTION HEADERS */
+  .section-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 20px;
+    font-weight: 700;
+    color: #fff;
+    margin: 32px 0 16px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid rgba(72,20,218,0.3);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .section-title .icon {
+    width: 28px; height: 28px;
+    background: var(--purplish);
+    border-radius: 6px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px;
+    flex-shrink: 0;
+  }
+
+  /* PLATFORM GRID */
+  .layer-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--lemonade);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 20px 0 10px;
+    padding-left: 4px;
+  }
+  .platform-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .platform {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px;
+    padding: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: all 0.2s;
+    cursor: default;
+  }
+  .platform:hover {
+    background: rgba(255,255,255,0.06);
+    border-color: rgba(255,255,255,0.12);
+  }
+  .platform .name {
+    font-weight: 600;
+    font-size: 13px;
+    color: #E2E8F0;
+  }
+  .platform .role {
+    font-size: 11px;
+    color: var(--steel);
+    margin-top: 2px;
+  }
+  .platform .cost {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: var(--info);
+    white-space: nowrap;
+  }
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+  .status-dot.active { background: var(--success); box-shadow: 0 0 6px rgba(34,197,94,0.4); }
+  .status-dot.onboarding { background: var(--warning); box-shadow: 0 0 6px rgba(245,158,11,0.4); }
+  .status-dot.blocked { background: var(--error); box-shadow: 0 0 6px rgba(239,68,68,0.4); }
+  .status-dot.discontinued { background: var(--steel); }
+
+  /* SPRINT PROGRESS */
+  .sprint-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 12px;
+  }
+  .sprint-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .sprint-card.current {
+    border-color: rgba(72,20,218,0.4);
+    background: rgba(72,20,218,0.05);
+  }
+  .sprint-card.current::before {
+    content: 'ACTIVO';
+    position: absolute;
+    top: 8px; right: 8px;
+    background: var(--purplish);
+    color: #fff;
+    font-size: 9px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+  .sprint-card .sprint-name {
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
+    font-size: 15px;
+    color: #fff;
+    margin-bottom: 4px;
+  }
+  .sprint-card .sprint-dates {
+    font-size: 11px;
+    color: var(--steel);
+    margin-bottom: 10px;
+  }
+  .sprint-card .sprint-focus {
+    font-size: 12px;
+    color: var(--lemonade);
+    margin-bottom: 10px;
+  }
+  .progress-bar {
+    height: 6px;
+    background: rgba(255,255,255,0.08);
+    border-radius: 3px;
+    overflow: hidden;
+    margin-bottom: 6px;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 3px;
+    transition: width 1.5s ease;
+  }
+  .progress-fill.green { background: linear-gradient(90deg, var(--success), #4ade80); }
+  .progress-fill.yellow { background: linear-gradient(90deg, var(--warning), #fbbf24); }
+  .progress-fill.purple { background: linear-gradient(90deg, var(--purplish), var(--indigo)); }
+  .progress-label {
+    font-size: 11px;
+    color: var(--steel);
+    text-align: right;
+  }
+
+  /* WORKFLOW TABLE */
+  .wf-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    margin-top: 12px;
+  }
+  .wf-table thead th {
+    background: rgba(72,20,218,0.15);
+    color: var(--lemonade);
+    font-weight: 600;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid rgba(72,20,218,0.3);
+  }
+  .wf-table tbody tr {
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.2s;
+  }
+  .wf-table tbody tr:hover {
+    background: rgba(255,255,255,0.03);
+  }
+  .wf-table td {
+    padding: 10px 12px;
+    color: #CBD5E1;
+    vertical-align: middle;
+  }
+  .wf-table td:first-child {
+    font-weight: 600;
+    color: #E2E8F0;
+  }
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .tag.done { background: rgba(34,197,94,0.15); color: var(--success); }
+  .tag.progress { background: rgba(245,158,11,0.15); color: var(--warning); }
+  .tag.blocked { background: rgba(239,68,68,0.15); color: var(--error); }
+  .tag.pending { background: rgba(71,85,105,0.2); color: var(--steel); }
+  .tag.cancelled { background: rgba(107,114,128,0.15); color: var(--steel); text-decoration: line-through; }
+
+  /* COST BREAKDOWN */
+  .cost-bar-container {
+    margin: 16px 0;
+  }
+  .cost-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+    gap: 12px;
+  }
+  .cost-layer-name {
+    width: 160px;
+    font-size: 12px;
+    color: var(--steel);
+    flex-shrink: 0;
+    text-align: right;
+  }
+  .cost-bar-track {
+    flex: 1;
+    height: 24px;
+    background: rgba(255,255,255,0.04);
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .cost-bar-fill {
+    height: 100%;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #fff;
+    transition: width 1.5s ease;
+    min-width: fit-content;
+  }
+  .cost-amount {
+    width: 90px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    color: #E2E8F0;
+    text-align: right;
+    flex-shrink: 0;
+  }
+
+  /* GOD MODE */
+  .godmode-box {
+    background: linear-gradient(135deg, rgba(72,20,218,0.1), rgba(99,102,241,0.05));
+    border: 1px solid rgba(72,20,218,0.3);
+    border-radius: 12px;
+    padding: 20px;
+    margin: 20px 0;
+    display: flex;
+    gap: 24px;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .godmode-left {
+    flex: 1;
+    min-width: 200px;
+  }
+  .godmode-title {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    color: var(--fuchsia);
+    margin-bottom: 4px;
+  }
+  .godmode-subtitle {
+    font-size: 12px;
+    color: var(--steel);
+  }
+  .godmode-right {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .godmode-stat {
+    text-align: center;
+  }
+  .godmode-stat .val {
+    font-family: 'DM Sans', sans-serif;
+    font-size: 24px;
+    font-weight: 700;
+  }
+  .godmode-stat .lbl {
+    font-size: 10px;
+    color: var(--steel);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  /* FOOTER */
+  .footer {
+    text-align: center;
+    padding: 24px 0 16px;
+    font-family: 'Lato', sans-serif;
+    font-size: 11px;
+    color: var(--steel);
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: 40px;
+  }
+  .footer strong { color: var(--info); }
+
+  /* SCROLL REVEAL */
+  .reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.6s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* RESPONSIVE */
+  @media (max-width: 600px) {
+    .container { padding: 16px 12px; }
+    .metrics-bar { grid-template-columns: repeat(2, 1fr); }
+    .platform-grid { grid-template-columns: 1fr; }
+    .sprint-grid { grid-template-columns: 1fr; }
+    .cost-layer-name { width: 80px; font-size: 10px; }
+    .wf-table { font-size: 11px; }
+    .wf-table td, .wf-table th { padding: 8px 6px; }
+    .godmode-box { flex-direction: column; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>Mesa de Control <span>SND</span></h1>
+  <div class="subtitle">Sistema Nervioso Digital · Quantum 360° · Marzo 2026</div>
+  <div class="badge">⚡ SND ACCELERATION SPRINT · SEMANA 1/4</div>
+</div>
+
+<div class="container">
+
+  <!-- HERO METRICS -->
+  <div class="metrics-bar reveal">
+    <div class="metric-card">
+      <div class="metric-value accent">21</div>
+      <div class="metric-label">Plataformas Activas</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value warning">9<span style="font-size:16px;color:var(--steel)">/44</span></div>
+      <div class="metric-label">WFs Completados</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value">$3,217</div>
+      <div class="metric-label">USD/Mes Stack</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value">2.4%</div>
+      <div class="metric-label">% Revenue</div>
+    </div>
+    <div class="metric-card">
+      <div class="metric-value warning">20%</div>
+      <div class="metric-label">Sprint Progress</div>
+    </div>
+  </div>
+
+  <!-- GOD MODE -->
+  <div class="godmode-box reveal">
+    <div class="godmode-left">
+      <div class="godmode-title">⚡ GOD MODE ACTIVO</div>
+      <div class="godmode-subtitle">oscar@ owner de 16 plataformas · Exit: 20 WFs + 48h error-free → snd.ops@</div>
+    </div>
+    <div class="godmode-right">
+      <div class="godmode-stat">
+        <div class="val" style="color:var(--warning)">16</div>
+        <div class="lbl">Plataformas</div>
+      </div>
+      <div class="godmode-stat">
+        <div class="val" style="color:var(--error)">11</div>
+        <div class="lbl">WFs Faltantes</div>
+      </div>
+      <div class="godmode-stat">
+        <div class="val" style="color:var(--info)">0h</div>
+        <div class="lbl">Error-Free</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PLATFORMS -->
+  <div class="section-title reveal"><div class="icon">🔌</div> Stack 21 Plataformas</div>
+
+  <div class="layer-label">Capa 1 · Core ERP & Operaciones — ~$2,360 USD</div>
+  <div class="platform-grid reveal">
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>Monday.com</div><div class="role">Hub central · 60+ boards · SSOT</div></div>
+      <div class="cost">~$800</div>
+    </div>
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>NetSuite</div><div class="role">ERP · P&L · CxC/CxP · ID: 9237799</div></div>
+      <div class="cost">~$1,200</div>
+    </div>
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>Google Workspace</div><div class="role">Gmail · Drive · Calendar · Admin SDK</div></div>
+      <div class="cost">~$360</div>
+    </div>
+  </div>
+
+  <div class="layer-label">Capa 2 · Automatización & Orquestación — ~$50 USD</div>
+  <div class="platform-grid reveal">
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>n8n (v2.8.3)</div><div class="role">Orquestador SND · Self-hosted</div></div>
+      <div class="cost">$0</div>
+    </div>
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>DigitalOcean + EasyPanel</div><div class="role">Cloud infra · PostgreSQL · Evolution</div></div>
+      <div class="cost">~$50</div>
+    </div>
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>PostgreSQL</div><div class="role">DB SND · Folios · Financial Bridge</div></div>
+      <div class="cost">Incl.</div>
+    </div>
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>Evolution API</div><div class="role">WhatsApp Business · 43 grupos</div></div>
+      <div class="cost">$0</div>
+    </div>
+  </div>
+
+  <div class="layer-label">Capa 3 · Inteligencia Artificial & Desarrollo — ~$60 USD</div>
+  <div class="platform-grid reveal">
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>Claude Team</div><div class="role">IA estratégica · Co-piloto CEO · 2 seats</div></div>
+      <div class="cost">~$60</div>
+    </div>
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>Google Antigravity</div><div class="role">IDE agent-first · Builder primario</div></div>
+      <div class="cost">$0</div>
+    </div>
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>Monday AI Blocks</div><div class="role">AI nativo en boards</div></div>
+      <div class="cost">Incl.</div>
+    </div>
+  </div>
+
+  <div class="layer-label">Capa 4 · Campo, HR & Analytics — ~$490 USD</div>
+  <div class="platform-grid reveal">
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>Samsara</div><div class="role">GPS · Telemetría · 11 vehículos</div></div>
+      <div class="cost">~$200</div>
+    </div>
+    <div class="platform">
+      <div><div class="name"><span class="status-dot onboarding"></span>Fracttal</div><div class="role">Campo · Checklists · 56% impl</div></div>
+      <div class="cost">~$100</div>
+    </div>
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>Sesame HR</div><div class="role">Asistencia · Vacaciones · Evaluaciones</div></div>
+      <div class="cost">~$150</div>
+    </div>
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>Power BI</div><div class="role">Dashboards ejecutivos · 2 Pro</div></div>
+      <div class="cost">~$40</div>
+    </div>
+  </div>
+
+  <div class="layer-label">Capa 5 · Web & Marketing — ~$95 USD</div>
+  <div class="platform-grid reveal">
+    <div class="platform">
+      <div><div class="name"><span class="status-dot blocked"></span>Webflow</div><div class="role">Sitio web · Acceso bloqueado (ex-Marcela)</div></div>
+      <div class="cost">~$40</div>
+    </div>
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>Meta Business</div><div class="role">Redes sociales</div></div>
+      <div class="cost">$0</div>
+    </div>
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>Adobe Creative Cloud</div><div class="role">Diseño · Marca · Contenido</div></div>
+      <div class="cost">~$55</div>
+    </div>
+  </div>
+
+  <div class="layer-label">Capa 6 · CPQ, Documentos & AP — ~$642 USD</div>
+  <div class="platform-grid reveal">
+    <div class="platform">
+      <div><div class="name"><span class="status-dot active"></span>PandaDoc Business</div><div class="role">CPQ · Cotizador · 3 seats · Go-live 04-Abr</div></div>
+      <div class="cost">$147</div>
+    </div>
+    <div class="platform">
+      <div><div class="name"><span class="status-dot onboarding"></span>Payana</div><div class="role">AP automation · SAT/CIEC · Firmado 13-Mar</div></div>
+      <div class="cost">~$495</div>
+    </div>
+  </div>
+
+  <div class="layer-label" style="color:var(--steel);">Descontinuadas</div>
+  <div class="platform-grid reveal">
+    <div class="platform" style="opacity:0.4;">
+      <div><div class="name"><span class="status-dot discontinued"></span>Metabase</div><div class="role">→ Power BI (06-Mar)</div></div>
+      <div class="cost" style="text-decoration:line-through;">$0</div>
+    </div>
+    <div class="platform" style="opacity:0.4;">
+      <div><div class="name"><span class="status-dot discontinued"></span>DataScope</div><div class="role">→ Fracttal (14-Mar)</div></div>
+      <div class="cost" style="text-decoration:line-through;">$100</div>
+    </div>
+    <div class="platform" style="opacity:0.4;">
+      <div><div class="name"><span class="status-dot discontinued"></span>Budibase</div><div class="role">→ Antigravity (14-Mar)</div></div>
+      <div class="cost" style="text-decoration:line-through;">$0</div>
+    </div>
+  </div>
+
+  <!-- COST BREAKDOWN -->
+  <div class="section-title reveal"><div class="icon">💰</div> Distribución de Costo Mensual</div>
+  <div class="cost-bar-container reveal">
+    <div class="cost-row">
+      <div class="cost-layer-name">Core ERP & Ops</div>
+      <div class="cost-bar-track"><div class="cost-bar-fill" style="width:73%;background:linear-gradient(90deg,var(--purplish),var(--indigo))">$2,360</div></div>
+      <div class="cost-amount">$2,360</div>
+    </div>
+    <div class="cost-row">
+      <div class="cost-layer-name">CPQ & AP</div>
+      <div class="cost-bar-track"><div class="cost-bar-fill" style="width:20%;background:linear-gradient(90deg,var(--fuchsia),var(--rose))">$642</div></div>
+      <div class="cost-amount">$642</div>
+    </div>
+    <div class="cost-row">
+      <div class="cost-layer-name">Campo & HR</div>
+      <div class="cost-bar-track"><div class="cost-bar-fill" style="width:15%;background:linear-gradient(90deg,var(--warning),#fbbf24)">$490</div></div>
+      <div class="cost-amount">$490</div>
+    </div>
+    <div class="cost-row">
+      <div class="cost-layer-name">Web & Marketing</div>
+      <div class="cost-bar-track"><div class="cost-bar-fill" style="width:3%;background:var(--info)"></div></div>
+      <div class="cost-amount">$95</div>
+    </div>
+    <div class="cost-row">
+      <div class="cost-layer-name">IA & Dev</div>
+      <div class="cost-bar-track"><div class="cost-bar-fill" style="width:2%;background:var(--lemonade)"></div></div>
+      <div class="cost-amount">$60</div>
+    </div>
+    <div class="cost-row">
+      <div class="cost-layer-name">Infra & Automation</div>
+      <div class="cost-bar-track"><div class="cost-bar-fill" style="width:2%;background:var(--success)"></div></div>
+      <div class="cost-amount">$50</div>
+    </div>
+  </div>
+
+  <!-- SPRINT STATUS -->
+  <div class="section-title reveal"><div class="icon">🏃</div> Sprint Plan · 28 Feb – 28 Mar</div>
+  <div class="sprint-grid reveal">
+    <div class="sprint-card">
+      <div class="sprint-name">Sprint 0 · Infraestructura</div>
+      <div class="sprint-dates">Pre-28 Feb</div>
+      <div class="sprint-focus">Credentials · MCP · APIs · Antigravity</div>
+      <div class="progress-bar"><div class="progress-fill green" style="width:100%"></div></div>
+      <div class="progress-label">7/7 · 100%</div>
+    </div>
+    <div class="sprint-card">
+      <div class="sprint-name">Sprint 1 · Revenue / O2C</div>
+      <div class="sprint-dates">28 Feb – 7 Mar</div>
+      <div class="sprint-focus">WF-NS01 ✅ · Tableros O2C ✅ · NS Taxonomía</div>
+      <div class="progress-bar"><div class="progress-fill yellow" style="width:29%"></div></div>
+      <div class="progress-label">2/7 · 29%</div>
+    </div>
+    <div class="sprint-card">
+      <div class="sprint-name">Sprint 2 · Operations + CPQ</div>
+      <div class="sprint-dates">10 – 14 Mar</div>
+      <div class="sprint-focus">Asistencia · Flota · PandaDoc Setup</div>
+      <div class="progress-bar"><div class="progress-fill purple" style="width:0%"></div></div>
+      <div class="progress-label">0/8 · 0%</div>
+    </div>
+    <div class="sprint-card current">
+      <div class="sprint-name">Sprint 3+4 · Acceleration</div>
+      <div class="sprint-dates">24 – 28 Mar</div>
+      <div class="sprint-focus">WhatsApp SND · Power BI · CEO Intel · God Mode Exit</div>
+      <div class="progress-bar"><div class="progress-fill purple" style="width:0%"></div></div>
+      <div class="progress-label">0/22 · Target: 20+ WFs</div>
+    </div>
+  </div>
+
+  <!-- KEY WORKFLOWS -->
+  <div class="section-title reveal"><div class="icon">⚙️</div> Workflows Clave</div>
+  <div style="overflow-x:auto" class="reveal">
+    <table class="wf-table">
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Workflow</th>
+          <th>Bloque</th>
+          <th>Status</th>
+          <th>Output</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>WF-NS01</td>
+          <td>NetSuite Financial Bridge</td>
+          <td>Revenue</td>
+          <td><span class="tag done">✅ DONE</span></td>
+          <td>PostgreSQL + Monday 18402650904</td>
+        </tr>
+        <tr>
+          <td>WF-COT-01</td>
+          <td>PandaDoc Cálculo + Crear Doc</td>
+          <td>CPQ</td>
+          <td><span class="tag pending">PENDIENTE</span></td>
+          <td>Doc PandaDoc desde Matriz 53 col.</td>
+        </tr>
+        <tr>
+          <td>WF-COT-03</td>
+          <td>Firma → NS Estimate</td>
+          <td>CPQ</td>
+          <td><span class="tag pending">PENDIENTE</span></td>
+          <td>Monday + NetSuite + WhatsApp</td>
+        </tr>
+        <tr>
+          <td>WF-WA01</td>
+          <td>WhatsApp SND Intake</td>
+          <td>Comms</td>
+          <td><span class="tag pending">PENDIENTE</span></td>
+          <td>43 grupos → clasificación → Monday</td>
+        </tr>
+        <tr>
+          <td>WF-PBI01</td>
+          <td>Power BI Dashboards</td>
+          <td>Analytics</td>
+          <td><span class="tag pending">PENDIENTE</span></td>
+          <td>Mesa Control + CEO Financial + Scorecard</td>
+        </tr>
+        <tr>
+          <td>WF-CR01</td>
+          <td>KPIs Casco Rojo → CEO</td>
+          <td>Compliance</td>
+          <td><span class="tag blocked">🔒 BLOQUEADO</span></td>
+          <td>Vacante S&H sin cubrir</td>
+        </tr>
+        <tr>
+          <td>WF-MB01</td>
+          <td>Metabase Dashboards</td>
+          <td>—</td>
+          <td><span class="tag cancelled">CANCELADO</span></td>
+          <td>Migrado a Power BI</td>
+        </tr>
+        <tr>
+          <td>WF-RENT-01</td>
+          <td>Rentabilidad por Célula</td>
+          <td>Finanzas</td>
+          <td><span class="tag pending">PENDIENTE</span></td>
+          <td>Margen por célula → Monday + PBI</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- BOARD STATUS -->
+  <div class="section-title reveal"><div class="icon">📊</div> Board Status Real · 44 Items</div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:12px" class="reveal">
+    <div style="flex:1;min-width:200px;background:rgba(34,197,94,0.08);border:1px solid rgba(34,197,94,0.2);border-radius:10px;padding:16px;text-align:center">
+      <div style="font-family:'DM Sans';font-size:32px;font-weight:700;color:var(--success)">9</div>
+      <div style="font-size:12px;color:var(--steel)">Completados · 20%</div>
+    </div>
+    <div style="flex:1;min-width:200px;background:rgba(245,158,11,0.08);border:1px solid rgba(245,158,11,0.2);border-radius:10px;padding:16px;text-align:center">
+      <div style="font-family:'DM Sans';font-size:32px;font-weight:700;color:var(--warning)">2</div>
+      <div style="font-size:12px;color:var(--steel)">En proceso · 5%</div>
+    </div>
+    <div style="flex:1;min-width:200px;background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:10px;padding:16px;text-align:center">
+      <div style="font-family:'DM Sans';font-size:32px;font-weight:700;color:var(--error)">1</div>
+      <div style="font-size:12px;color:var(--steel)">Bloqueado · 2%</div>
+    </div>
+    <div style="flex:1;min-width:200px;background:rgba(71,85,105,0.12);border:1px solid rgba(71,85,105,0.2);border-radius:10px;padding:16px;text-align:center">
+      <div style="font-family:'DM Sans';font-size:32px;font-weight:700;color:var(--info)">32</div>
+      <div style="font-size:12px;color:var(--steel)">Pendientes · 73%</div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <strong>QUANTUM 360°</strong> · APEX-OS · Sistema Nervioso Digital<br>
+    Generado: 24 Marzo 2026 · Board: 18395470272 · Datos al 21-Mar-2026<br>
+    <span style="color:rgba(255,255,255,0.15)">Q360:DEPLOY test · gd_publisher.py</span>
+  </div>
+
+</div>
+
+<script>
+// Scroll reveal
+const obs = new IntersectionObserver((entries) => {
+  entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); } });
+}, { threshold: 0.1 });
+document.querySelectorAll('.reveal').forEach(el => obs.observe(el));
+</script>
+
+</body>
+</html>
